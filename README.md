@@ -8,7 +8,7 @@ This project simulates a massive scale IoT environment where 50 oil fields of 22
 
 The system replays historical production data (originally in Parquet format), streams it through Kafka topics, and aggregates it into a single `massive_oil_data.csv` file for analysis, all while displaying real-time flow metrics in the terminal.
 
-## 💾 Dataset & Transformation
+## Dataset & Transformation
 
 ### 1. The Source Data
 The raw data consists of individual `.parquet` files representing specific oil wells in Petrobas offshore oil fields.
@@ -33,7 +33,7 @@ This pre-processing step allows the producer to simulate entire fields coming on
 graph LR
     A[Parquet Data] --> B[Producer] --> C[(Kafka)] --> D[Consumer] --> E[CSV + Stats]
 
-## ⚡ Parallel Processing & Threading Algorithm
+## Parallel Processing & Threading Algorithm
 
 To realistically simulate ~50 oil fields transmitting data at the same time, a simple sequential loop is not sufficient. This project uses a **multi-threaded producer architecture** to model real-world distributed systems.
 
