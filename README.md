@@ -140,6 +140,7 @@ docker-compose up --build
 ```
 
 ## License
+
 ```mermaid
 graph LR
     A[Parquet Files] -->|file_structure.py| B[Field Directories]
@@ -148,4 +149,5 @@ graph LR
     D -->|Consumer Group| E[Ultra Consumer]
     E -->|Bulk Write| F[massive_oil_data.csv]
     E -->|Live Stats| G[Terminal Dashboard]
+```
 Distributed under the **Apache License 2.0**. See the `LICENSE` file for more information.
