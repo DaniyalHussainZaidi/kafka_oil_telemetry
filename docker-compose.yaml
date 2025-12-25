@@ -1,0 +1,68 @@
+services:
+  # INFRASTRUCTURE (Zookeeper + Kafka)
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - oil-net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      # Listen on both internal network (kafka:9092) and external localhost (localhost:9092)
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - oil-net
+
+  # PYTHON APPLICATIONS
+  
+  # The Producer: Reads Parquet, sends to Kafka
+  producer:
+    build: .
+    container_name: ultra_producer
+    depends_on:
+      - kafka
+    environment:
+      # Overriding defaults in ultra_producer.py
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - DATA_FOLDER=/app/data/fields
+    volumes:
+      # Map local data folder to container
+      - ./data:/app/data
+    command: python ultra_producer.py
+    networks:
+      - oil-net
+
+  # The Consumer: Reads Kafka, writes CSV
+  consumer:
+    build: .
+    container_name: ultra_consumer
+    depends_on:
+      - kafka
+    environment:
+      # Overriding defaults in ultra_consumer.py
+      - BOOTSTRAP_SERVERS=kafka:9092
+    volumes:
+      # Map output folder so the CSV is saved to your host machine
+      - ./output:/app/output
+    # Modified command to write to the mapped output folder
+    command: sh -c "cd /app/output && python /app/ultra_consumer.py"
+    networks:
+      - oil-net
+
+networks:
+  oil-net:
+    driver: bridge
