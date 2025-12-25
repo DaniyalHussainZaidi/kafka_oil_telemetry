@@ -1,6 +1,15 @@
 # kafka_oil_telemetry
 A Dockerized real time simulation of oil field telemetry. 3W-Petrobas dataset used to produce streams into a live terminal dashboard and perform ETL. Built with Confluent Kafka and Pandas.
 
+```mermaid
+graph LR
+    A[Parquet Files] -->|file_structure.py| B[Field Directories]
+    B -->|Threaded Read| C[Ultra Producer]
+    C -->|JSON Stream| D((Apache Kafka))
+    D -->|Consumer Group| E[Ultra Consumer]
+    E -->|Bulk Write| F[massive_oil_data.csv]
+    E -->|Live Stats| G[Terminal Dashboard]
+```
 
 ## About the Project
 
@@ -141,13 +150,4 @@ docker-compose up --build
 
 ## License
 
-```mermaid
-graph LR
-    A[Parquet Files] -->|file_structure.py| B[Field Directories]
-    B -->|Threaded Read| C[Ultra Producer]
-    C -->|JSON Stream| D((Apache Kafka))
-    D -->|Consumer Group| E[Ultra Consumer]
-    E -->|Bulk Write| F[massive_oil_data.csv]
-    E -->|Live Stats| G[Terminal Dashboard]
-```
 Distributed under the **Apache License 2.0**. See the `LICENSE` file for more information.
