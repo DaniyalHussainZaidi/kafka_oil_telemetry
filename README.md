@@ -37,10 +37,6 @@ This pre-processing step allows the producer to simulate entire fields coming on
 
 ## Architecture & Optimization
 
-### The Pipeline
-
-graph LR
-    A[Parquet Data] --> B[Producer] --> C[(Kafka)] --> D[Consumer] --> E[CSV + Stats]
 
 ## Parallel Processing & Threading Algorithm
 
