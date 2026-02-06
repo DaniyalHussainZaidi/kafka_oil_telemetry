@@ -28,8 +28,8 @@ def run_consumer():
     
     consumer = Consumer(conf)
     consumer.subscribe([TOPIC_NAME])
-    print(f"⚡ Consumer listening on {BOOTSTRAP_SERVERS}...")
-    print(f"💾 Saving data to: {output_file}")
+    print(f" Consumer listening on {BOOTSTRAP_SERVERS}...")
+    print(f" Saving data to: {output_file}")
     
     buffer = [] 
     count = 0
@@ -37,7 +37,7 @@ def run_consumer():
     # Open in 'a' (Append) mode so we don't delete file if we restart consumer
     with open(output_file, 'a', newline='') as f:
         writer = None 
-        print("⏳ Waiting for NEW stream data...")
+        print(" Waiting for NEW stream data...")
         
         try:
             while True:
@@ -47,14 +47,14 @@ def run_consumer():
                     continue
                 
                 if msg.error():
-                    print(f"⚠️ Kafka Error: {msg.error()}")
+                    print(f" * Kafka Error: {msg.error()}")
                     continue
 
                 try:
                     val = json.loads(msg.value().decode('utf-8'))
                     
                     if "status" in val and val["status"] == "DONE":
-                        print(f"\n🛑 Received DONE signal. Stream Finished.")
+                        print(f"\n ./ Received DONE signal. Stream Finished.")
                         break 
                     
                     buffer.append(val)
@@ -62,7 +62,7 @@ def run_consumer():
                     
                     if count % 20 == 0:
                         event_time = val.get('timestamp', 'Unknown')
-                        print(f"📥 Received: {count} | Event Time: {event_time}", end='\r')
+                        print(f" ./ Received: {count} | Event Time: {event_time}", end='\r')
 
                     if len(buffer) >= 50:
                         if writer is None:
@@ -79,7 +79,7 @@ def run_consumer():
                     continue 
 
         except KeyboardInterrupt:
-            print("\n👋 Stopping Consumer...")
+            print("\n * Stopping Consumer...")
             
         finally:
             if buffer and writer:
