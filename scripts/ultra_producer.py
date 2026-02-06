@@ -18,12 +18,12 @@ SIMULATION_DELAY = 0.05
 def wait_for_kafka(server_string):
     host, port = server_string.split(':')
     port = int(port)
-    print(f"⏳ Connecting to Kafka at {host}:{port}...", end='')
+    print(f" Connecting to Kafka at {host}:{port}...", end='')
     sys.stdout.flush()
     while True:
         try:
             socket.create_connection((host, port), timeout=2).close()
-            print(f" ✅ Connected!")
+            print(f" | Connected! |")
             return
         except:
             print(".", end='')
@@ -33,7 +33,7 @@ def wait_for_kafka(server_string):
 # --- THE FIX: RESET TOPIC ---
 def reset_topic(server_string):
     """Deletes the old topic and creates a fresh one to remove old DONE messages."""
-    print(f"🧹 Resetting topic '{TOPIC_NAME}'...", end='')
+    print(f" Resetting topic '{TOPIC_NAME}'...", end='')
     sys.stdout.flush()
     
     admin_client = AdminClient({'bootstrap.servers': server_string})
@@ -61,7 +61,7 @@ def reset_topic(server_string):
         except Exception as e:
             print(f" (Warning: {e})", end='')
             
-    print(" ✅ Fresh topic created.")
+    print(" Fresh topic created.")
 
 def get_producer_config():
     return {
@@ -79,7 +79,7 @@ def process_file_batch(file_list):
             time_part = file_name.split('_')[1].split('.')[0]
             start_time = datetime.strptime(time_part, "%Y%m%d%H%M%S")
             
-            print(f"\n📂 Playing: {file_name}")
+            print(f"\n Playing: {file_name}")
             
             df = pd.read_parquet(file_path, engine='pyarrow')
             df['source_id'] = file_name
@@ -102,10 +102,10 @@ def process_file_batch(file_list):
                 print(f"📡 {timestamp_str} | ID: {record.get('source_id')}", end='\r')
                 time.sleep(SIMULATION_DELAY)
             
-            print(f"\n✅ Segment Done: {file_name}")
+            print(f"\n ./ Segment Done: {file_name}")
                 
         except Exception as e:
-            print(f"❌ Error in {file_name}: {e}")
+            print(f"* Error in {file_name}: {e}")
             
     p.flush()
 
@@ -117,13 +117,13 @@ if __name__ == '__main__':
 
     all_files = sorted(glob.glob(os.path.join(DATA_FOLDER, "*.parquet")))
     if not all_files:
-        print(f"❌ No files found in {DATA_FOLDER}")
+        print(f"* No files found in {DATA_FOLDER}")
         sys.exit(1)
 
-    print(f"📦 Found {len(all_files)} files. Starting Stream...")
+    print(f" Found {len(all_files)} files. Starting Stream...")
     process_file_batch(all_files)
         
-    print("\n✅ Simulation Complete. Sending STOP signal...")
+    print("\n ./ Simulation Complete. Sending STOP signal...")
     p_final = Producer(get_producer_config())
     stop_msg = json.dumps({"status": "DONE"}).encode('utf-8')
     # Send it multiple times to ensure the consumer catches it
